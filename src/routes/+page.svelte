@@ -1,10 +1,33 @@
 <script>
-	let num_rows = 4;
-	let num_cols = 5;
-    let toggled = false;
+	let toggled = false;
 
-	let grid = [];
-	$: grid = Array(num_rows).fill(Array(num_cols));
+	let grid = Array(4)
+		.fill(0)
+		.map((_) => Array(5).fill(0));
+
+	let numRows;
+	let numCols;
+	$: numRows = grid.length;
+	$: numCols = grid[0].length;
+
+	function addRow() {
+		grid = [...grid, Array(numCols).fill(0)];
+	}
+	function removeRow() {
+		if (numRows <= 1) {
+			return;
+		}
+		grid = [...grid.slice(0, -1)];
+	}
+	function addCol() {
+		grid.forEach((row, i) => (grid[i] = [...row, 0]));
+	}
+	function removeCol() {
+		if (numCols <= 1) {
+			return;
+		}
+		grid.forEach((row, i) => (grid[i] = [...row.slice(0, -1)]));
+	}
 </script>
 
 <div id="interface">
@@ -15,15 +38,23 @@
 			/>
 		</svg>
 	</button>
-		<button class="row-btn subtract" on:click={() => num_rows > 1 && num_rows--}>-</button>
-		<button class="row-btn add" on:click={() => num_rows++}>+</button>
-		<button class="col-btn add" on:click={() => num_cols++}>+</button>
-		<button class="col-btn subtract" on:click={() => num_cols > 1 && num_cols--}>-</button>
+	<button class="row-btn subtract" on:click={removeRow}>-</button>
+	<button class="row-btn add" on:click={addRow}>+</button>
+	<button class="col-btn add" on:click={addCol}>+</button>
+	<button class="col-btn subtract" on:click={removeCol}>-</button>
 	<div id="grid">
-		{#each grid as row}
+		{#each grid as row, i}
 			<div class="row">
-				{#each row as elem}
-					<button class="elem" />
+				{#each row as elem, j}
+					<button
+						class="elem"
+						on:click={() => grid[i][j] = ++grid[i][j]%5}
+						class:connected-left={j > 0 && (grid[i][j] === grid[i][j-1])}
+						class:connected-right={j < numCols-1 && (grid[i][j] === grid[i][j+1])}
+						class:connected-top={i > 0 && (grid[i][j] === grid[i-1][j])}
+						class:connected-bottom={i < numRows - 1 && (grid[i][j] === grid[i+1][j])}
+						>{grid[i][j]}
+					</button>
 				{/each}
 			</div>
 		{/each}
@@ -33,59 +64,81 @@
 <style>
 	#interface {
 		display: grid;
-        grid-template-areas: 
-        "copy           subtract-row    add-row"
-        "add-col        grid            grid"
-        "subtract-col   grid            grid";
-        grid-template-columns: 40px 1fr 1fr;
-        grid-template-rows: 40px 1fr 1fr;
+		grid-template-areas:
+			'copy           subtract-row    add-row'
+			'add-col        grid            grid'
+			'subtract-col   grid            grid';
+		grid-template-columns: 40px 1fr 1fr;
+		grid-template-rows: 40px 1fr 1fr;
 		margin: 0;
-		gap: 0.5rem;
-        height: calc(100vh - 16px);
-        width: 100vw;
-        max-height: 100%;
-        max-width: 100%;
+		gap: 1rem;
+		height: calc(100vh - 16px);
+		width: 100vw;
+		max-height: 100%;
+		max-width: 100%;
 	}
 	#copy {
 		padding: 0;
 		display: flex;
 		justify-content: center;
 		align-items: center;
-        grid-area: copy;
+		grid-area: copy;
 	}
 	#copy svg {
 		margin: 0.5rem;
 	}
-    .row-btn.subtract {
-        grid-area: subtract-row;
-    }
-    .col-btn.subtract {
-        grid-area: subtract-col;
-    }
-    .row-btn.add {
-        grid-area: add-row;
-    }
-    .col-btn.add {
-        grid-area: add-col;
-    }
-    #grid {
+	.row-btn.subtract {
+		grid-area: subtract-row;
+	}
+	.col-btn.subtract {
+		grid-area: subtract-col;
+	}
+	.row-btn.add {
+		grid-area: add-row;
+	}
+	.col-btn.add {
+		grid-area: add-col;
+	}
+	#grid {
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
-        grid-area: grid;
-        max-height: 100%;
-        max-width: 100%;
+		gap: 0.5rem;
+		grid-area: grid;
+		max-height: 100%;
+		max-width: 100%;
 	}
 	.row {
 		display: flex;
 		margin: 0;
 		padding: 0;
-		gap: 1rem;
-        flex: 1;
+		gap: inherit;
+		flex: 1;
 	}
 	.elem {
-        flex: 1;
+		flex: 1;
 		margin: 0;
 		padding: 0;
+		border: 1px black solid;
+		border-radius: 0;
+	}
+	.connected-left {
+		margin-left: -0.5rem;
+		padding-left: 0.5rem;
+		border-left: none;
+	}
+	.connected-right {
+		margin-right: -0.5rem;
+		padding-right: 0.5rem;
+		border-right: none;
+	}
+	.connected-top {
+		margin-top: -0.5rem;
+		padding-top: 0.5rem;
+		border-top: none;
+	}
+	.connected-bottom {
+		margin-bottom: -0.5rem;
+		padding-bottom: 0.5rem;
+		border-bottom: none;
 	}
 </style>
