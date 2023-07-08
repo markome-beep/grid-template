@@ -98,6 +98,12 @@
 	#copy svg {
 		margin: 0.5rem;
 	}
+	.subtract {
+		background-color: rgba(255, 0, 0, 0.332);
+	}
+	.add {
+		background-color: lightgreen;
+	}
 	.row-btn.subtract {
 		grid-area: subtract-row;
 	}
@@ -133,6 +139,7 @@
 		padding: 0;
 		border: var(--border-width) black solid;
 		border-radius: 0;
+		background-color: lightblue;
 	}
 	.connected-left {
 		margin-left: calc(-1 * (var(--gap-dist) / 2));
