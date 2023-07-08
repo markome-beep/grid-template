@@ -3,7 +3,11 @@
 
 	let grid = Array(4)
 		.fill(0)
-		.map((_) => Array(5).fill(0));
+		.map((_) =>
+			Array(5)
+				.fill(0)
+				.map((_) => ({ value: 0 }))
+		);
 
 	let numRows;
 	let numCols;
@@ -11,7 +15,12 @@
 	$: numCols = grid[0].length;
 
 	function addRow() {
-		grid = [...grid, Array(numCols).fill(0)];
+		grid = [
+			...grid,
+			Array(numCols)
+				.fill(0)
+				.map((_) => ({ value: 0 }))
+		];
 	}
 	function removeRow() {
 		if (numRows <= 1) {
@@ -20,7 +29,7 @@
 		grid = [...grid.slice(0, -1)];
 	}
 	function addCol() {
-		grid.forEach((row, i) => (grid[i] = [...row, 0]));
+		grid.forEach((row, i) => (grid[i] = [...row, {"value": 0}]));
 	}
 	function removeCol() {
 		if (numCols <= 1) {
@@ -45,15 +54,17 @@
 	<div id="grid">
 		{#each grid as row, i}
 			<div class="row">
-				{#each row as elem, j}
+				{#each row as _, j}
 					<button
 						class="elem"
-						on:click={() => grid[i][j] = ++grid[i][j]%5}
-						class:connected-left={j > 0 && (grid[i][j] === grid[i][j-1])}
-						class:connected-right={j < numCols-1 && (grid[i][j] === grid[i][j+1])}
-						class:connected-top={i > 0 && (grid[i][j] === grid[i-1][j])}
-						class:connected-bottom={i < numRows - 1 && (grid[i][j] === grid[i+1][j])}
-						>{grid[i][j]}
+						on:click={() => (grid[i][j]['value'] = ++grid[i][j]['value'] % 4)}
+						class:connected-left={j > 0 && grid[i][j]['value'] === grid[i][j - 1]['value']}
+						class:connected-right={j < numCols - 1 &&
+							grid[i][j]['value'] === grid[i][j + 1]['value']}
+						class:connected-top={i > 0 && grid[i][j]['value'] === grid[i - 1][j]['value']}
+						class:connected-bottom={i < numRows - 1 &&
+							grid[i][j]['value'] === grid[i + 1][j]['value']}
+						>{grid[i][j]['value']}
 					</button>
 				{/each}
 			</div>
@@ -100,9 +111,11 @@
 		grid-area: add-col;
 	}
 	#grid {
+		--gap-dist: .5rem;
+		--border-width: 1px;
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		gap: var(--gap-dist);
 		grid-area: grid;
 		max-height: 100%;
 		max-width: 100%;
@@ -118,27 +131,27 @@
 		flex: 1;
 		margin: 0;
 		padding: 0;
-		border: 1px black solid;
+		border: var(--border-width) black solid;
 		border-radius: 0;
 	}
 	.connected-left {
-		margin-left: -0.5rem;
-		padding-left: 0.5rem;
-		border-left: none;
+		margin-left: calc(-1 * (var(--gap-dist) / 2));
+		padding-left: calc(var(--gap-dist) / 2);
+		border-left-color: transparent;
 	}
 	.connected-right {
-		margin-right: -0.5rem;
-		padding-right: 0.5rem;
-		border-right: none;
+		margin-right: calc(-1 * (var(--gap-dist) / 2));
+		padding-right: calc(var(--gap-dist) / 2);
+		border-right-color: transparent;
 	}
 	.connected-top {
-		margin-top: -0.5rem;
-		padding-top: 0.5rem;
-		border-top: none;
+		margin-top: calc(-1 * var(--gap-dist) / 2);
+		padding-top: calc(var(--gap-dist) / 2);
+		border-top: transparent;
 	}
 	.connected-bottom {
-		margin-bottom: -0.5rem;
-		padding-bottom: 0.5rem;
-		border-bottom: none;
+		margin-bottom: calc(-1 * var(--gap-dist) / 2);
+		padding-bottom: calc(var(--gap-dist) / 2);
+		border-bottom: transparent;
 	}
 </style>
